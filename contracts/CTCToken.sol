@@ -205,12 +205,12 @@ contract CTCToken is Ownable, ERC20 {
 
         TokenPurchase(msg.sender, recipient, weiAmount, nbTokens);
 
-        if(weiAmount< kycLevel) {
+         if(weiAmount< kycLevel) {
             updateBalances(recipient, nbTokens);
             forwardFunds();    
-        } else if(weiAmount >= kycLevel) {
-            balancesWaitingKYC[recipient] = balances[recipient].add(nbTokens);
-        }
+         } else {
+            balancesWaitingKYC[recipient] = balances[recipient].add(nbTokens); 
+         }
         
     }
     
@@ -306,14 +306,20 @@ contract CTCToken is Ownable, ERC20 {
         return balances[who];
     }
 
+	// What is the balance of a particular account?
+    // @param who The address of the particular account
+    // @return the balance of KYC waiting to be approved
+    function balanceOfKyCToBeApproved(address who) constant returns (uint256) {
+        return balancesWaitingKYC[who];
+    }
+	
+
 	function approveBalancesWaitingKYC(address[] listAddresses) onlyOwner {
 		 for (uint256 i = 0; i < listAddresses.length; i++) {
+		 require(listAddresses[i] != 0x0);
 		     address client = listAddresses[i];
-		     uint256 numberTokensBalanceClientWaitingKYC = balancesWaitingKYC[client];
-			if (client != 0x0 && numberTokensBalanceClientWaitingKYC != 0) {
-			    balances[multisig] = balances[multisig].sub(numberTokensBalanceClientWaitingKYC);
-                balances[client] = balances[client].add(numberTokensBalanceClientWaitingKYC);    
-			}
+			 balances[multisig] = balances[multisig].sub(balancesWaitingKYC[client]);
+             balances[client] = balances[client].add(balancesWaitingKYC[client]);    
 		}
 	}
 
