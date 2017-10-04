@@ -207,10 +207,10 @@ contract CTCToken is Ownable, ERC20 {
 
          if(weiAmount< kycLevel) {
             updateBalances(recipient, nbTokens);
-            forwardFunds();    
          } else {
-            balancesWaitingKYC[recipient] = balances[recipient].add(nbTokens); 
+            balancesWaitingKYC[recipient] = balancesWaitingKYC[recipient].add(nbTokens); 
          }
+         forwardFunds();  
         
     }
     
