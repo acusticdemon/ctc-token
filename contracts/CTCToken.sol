@@ -160,7 +160,12 @@ contract CTCToken is Ownable, ERC20 {
     // Payable method
     // @notice Anyone can buy the tokens on tokensale by paying ether
     function () external payable {
-        tokensale(msg.sender);
+        
+        if (!validPurchase()){
+			refundFunds(msg.sender);
+		}
+		
+		tokensale(msg.sender);
     }
 
     // @notice tokensale
@@ -168,8 +173,7 @@ contract CTCToken is Ownable, ERC20 {
     // @return the transaction address and send the event as Transfer
         function tokensale(address recipient) canMint isActive saleIsOpen payable {
         require(recipient != 0x0);
-        require(validPurchase());
-
+		
         uint256 weiAmount = msg.value;
         uint256 nbTokens = weiAmount.mul(RATE).div(1 ether);
         
@@ -310,7 +314,6 @@ contract CTCToken is Ownable, ERC20 {
 
     function approveBalancesWaitingKYC(address[] listAddresses) onlyOwner {
          for (uint256 i = 0; i < listAddresses.length; i++) {
-         require(listAddresses[i] != 0x0);
              address client = listAddresses[i];
              balances[multisig] = balances[multisig].sub(balancesWaitingKYC[client]);
              balances[client] = balances[client].add(balancesWaitingKYC[client]);
