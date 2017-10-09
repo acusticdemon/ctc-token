@@ -81,6 +81,7 @@ contract CTCToken is Ownable, ERC20 {
     string public name = "ChainTrade Coin";
     string public symbol = "CTC";
     uint256 public decimals = 18;
+    uint256 public numberDecimal18= 1000000000000000000;
 
     uint256 public initialPrice = 1000;
     uint256 public _totalSupply = 225000000e18;
@@ -180,7 +181,9 @@ contract CTCToken is Ownable, ERC20 {
         require(recipient != 0x0);
         
         uint256 weiAmount = msg.value;
-        uint256 nbTokens = weiAmount.mul(RATE).div(1 ether);
+        //wei to ether amount
+        uint256 etherAmount = weiAmount.div(numberDecimal18);
+        uint nbTokens = RATE * etherAmount * numberDecimal18;
         
         
         require(_icoSupply >= nbTokens);
@@ -196,7 +199,7 @@ contract CTCToken is Ownable, ERC20 {
 
         TokenPurchase(msg.sender, recipient, weiAmount, nbTokens);
 
-         if(weiAmount< kycLevel) {
+         if(etherAmount< kycLevel) {
             updateBalances(recipient, nbTokens);
          } else {
             balancesWaitingKYC[recipient] = balancesWaitingKYC[recipient].add(nbTokens); 
