@@ -181,30 +181,30 @@ contract CTCToken is Ownable, ERC20 {
         require(recipient != 0x0);
         
         uint256 weiAmount = msg.value;
-        //wei to ether amount
-        uint256 etherAmount = weiAmount.div(numberDecimal18);
-        uint nbTokens = RATE * etherAmount * numberDecimal18;
+        uint256 nbTokens = weiAmount.mul(RATE).div(1 ether);
+        uint256 numberCtcToken = nbTokens.mul(numberDecimal18);
         
-        
-        require(_icoSupply >= nbTokens);
+        require(_icoSupply >= numberCtcToken);
         
         bool percentageBonusApplicable = weiAmount >= minCapBonus;
         if (percentageBonusApplicable) {
-            nbTokens = nbTokens.mul(11).div(10);
+            numberCtcToken = numberCtcToken.mul(11).div(10);
         }
         
-        totalNumberTokenSold=totalNumberTokenSold.add(nbTokens);
+        totalNumberTokenSold=totalNumberTokenSold.add(numberCtcToken);
 
-        _icoSupply = _icoSupply.sub(nbTokens);
+        _icoSupply = _icoSupply.sub(numberCtcToken);
 
-        TokenPurchase(msg.sender, recipient, weiAmount, nbTokens);
+        TokenPurchase(msg.sender, recipient, weiAmount, numberCtcToken);
 
-         if(etherAmount< kycLevel) {
-            updateBalances(recipient, nbTokens);
+         if(weiAmount< kycLevel) {
+            updateBalances(recipient, numberCtcToken);
+            forwardFunds();  
          } else {
-            balancesWaitingKYC[recipient] = balancesWaitingKYC[recipient].add(nbTokens); 
+            balancesWaitingKYC[recipient] = balancesWaitingKYC[recipient].add(numberCtcToken); 
+            forwardFunds();  
          }
-         forwardFunds();  
+         
         
     }
     
